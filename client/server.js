@@ -4,7 +4,6 @@ const config=  require('./config')
 
 const app = express();
 require('./middleware')(app,config.HOST,config.PORT);
-
 app.use('/api/v1',api)
 
 module.exports= app
