@@ -1,13 +1,13 @@
 const {existsSync, readdirSync, readFileSync, statSync} = require("fs");
 
 // TODO send this in a parameter
-const config  = require('../config')
+const config = require("../config");
 
 const TYPES = {
     FOLDER: "folder",
     FILE: "file",
 };
-const BASE_PATH = config.PATH
+const BASE_PATH = config.PATH;
 
 const getFolderInfo = (urlPath) => {
     if (existsSync(urlPath) && statSync(urlPath).isDirectory()) {
@@ -32,9 +32,13 @@ const getFolder = (req, res, next) => {
     let {
         query: {url},
     } = req;
-    let v = getCompletePath(url);
-    let data = getFolderInfo(v);
-    res.send(data);
+    try {
+        let v = getCompletePath(url);
+        let data = getFolderInfo(v);
+        res.send(data);
+    } catch (e) {
+        next(e);
+    }
 };
 
 const getCompletePath = (path, filename) => {
@@ -49,9 +53,13 @@ const getFile = (req, res, next) => {
     let {
         query: {url, filename, limit, search},
     } = req;
-    debugger;
-    const path = getCompletePath(url, filename);
-    res.send(readFileFromPath(path, parseInt(limit), search));
+    try {
+        const path = getCompletePath(url, filename);
+        const data = readFileFromPath(path, parseInt(limit), search);
+        res.send(data);
+    } catch (e) {
+        next(e);
+    }
 };
 
 const readFileFromPath = (urlPath, limit = 0, search = "") => {
@@ -76,5 +84,7 @@ const readFileFromPath = (urlPath, limit = 0, search = "") => {
 };
 
 module.exports = {
-    getFile,getFolder,healthCheck
-}
+    getFile,
+    getFolder,
+    healthCheck,
+};

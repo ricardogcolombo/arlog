@@ -1,4 +1,5 @@
 const {nanoid} = require("nanoid");
+
 const axios = require("axios");
 const querystring = require("querystring");
 const url = require("url");
@@ -14,24 +15,39 @@ const redirectFile = (req, res, next) => {
 };
 const redirect = (req, res, next, url, route) => {
     const {serverId, ...data} = req.query;
-    if (clients[serverId]) {
+    try {
+        if (!clients[serverId]) {
+            throw new Error("Client is not registered");
+        }
         res.redirect(clients[serverId].url + route + querystring.stringify(data));
-        next();
-    } else {
-        throw new Error("Client is not registered");
+    } catch (e) {
+        next(e);
     }
 };
-const redirectFolder = (req, res, next) => {
-    redirect(req, res, next, url, "/folder?");
-    res.send("ok");
+
+const redirectFolder = async (req, res, next) => {
+    const {
+        query: {url, serverId},
+    } = req;
+    try {
+        if (!clients[serverId]) {
+            throw new Error("Client is not registered");
+        }
+
+        let clientQuery = {url: url || "/"};
+        let response = await axios.get(clients[serverId].url + "/folder", clientQuery);
+        res.status(response.status).send(response.data);
+    } catch (e) {
+        next(e);
+    }
 };
+
 const register = (req, res, next) => {
     const {
         body: {name, url},
     } = req;
     try {
         if (url && name) {
-            // TODO: create a promise (promsise.all and get many response from more than 1 sever)
             return axios({
                 mehtod: "get",
                 url: url + "/health",
@@ -52,4 +68,4 @@ const register = (req, res, next) => {
         next(e);
     }
 };
-module.exports = {register,getClients,redirectFolder,redirectFile}
+module.exports = {register, getClients, redirectFolder, redirectFile};
