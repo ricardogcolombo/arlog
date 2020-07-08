@@ -1,17 +1,20 @@
 let router = require("express").Router();
 const controller = require("./apiController");
 
-// Routes
+// ROUTES
 /**
  * @swagger
- *  /health:
- *      get:
- *          description: health check endpoint too see if the server is running
- *      responses:
- *          '200':
- *              description: successful response, server is running
+ * /clients:
+ *   get:
+ *     description: get of registered clients
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: file data
  */
-router.route("/health").get(controller.healthCheck);
+router.route("/clients?").get(controller.getClients);
+
 /**
  * @swagger
  *
@@ -19,6 +22,10 @@ router.route("/health").get(controller.healthCheck);
  *   get:
  *     description: get File
  *     parameters:
+ *       - name: serverId
+ *         in: query
+ *         description: server id
+ *         required: true
  *       - name: filename
  *         in: query
  *         description: name of the file to get
@@ -40,8 +47,9 @@ router.route("/health").get(controller.healthCheck);
  *       200:
  *         description: file data
  */
-router.route("/file").get(controller.getFile);
+router.route("/file").get(controller.redirectFile);
 
+//
 /**
  * @swagger
  *
@@ -51,6 +59,11 @@ router.route("/file").get(controller.getFile);
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: serverId
+ *         in: query
+ *         description:  id for the server
+ *         required: true
+ *         type: string
  *       - name: url
  *         in: query
  *         description:  path of the folder
@@ -60,5 +73,29 @@ router.route("/file").get(controller.getFile);
  *       200:
  *         description: file data
  */
-router.route("/folder").get(controller.getFolder);
+router.route("/folder/").get(controller.redirectFolder);
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     description: Login to the application
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: username
+ *         description: Username to use for login.
+ *         in: formData
+ *         required: true
+ *         type: string
+ *       - name: url
+ *         description: endpoint url
+ *         in: formData
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: login
+ */
+router.route("/register").post(controller.register);
+
 module.exports = router;
