@@ -31,3 +31,7 @@ after this steps you're ready to run each server with `npm run start:dev` or `np
 
 #Testing
 create a .env.test file specified as above and run tests with `npm run test`
+
+#TODO
+[] add tests for server
+[] modify server api to requests more clients at once
