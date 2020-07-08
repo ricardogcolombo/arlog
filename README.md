@@ -11,22 +11,22 @@ for a specific file in /var/loglast n events of specified filebasic text/keyword
 Must not use any pre-built log aggregation systems - this must be custom, purpose-built software.Minimize the number of external dependencies in the business logic code path (framework things like HTTP servers, etc are okay)Please commit and push code changes as you normally would - your thinking and working style is an important part for us to understand.
 
 # Install and run
-Run in the root of the project 
-`npm install`
+In the root of the project run 
+```npm install```
 
 create an environment file (.env.dev or .env.prod) in the client server and if you need to use the server create one there with the different variables as the .env.sample file. i.e.
 ##Client 
-`
+```
 PORT=3000
 HOST=0.0.0.0
 BASE_DIR=/var/log/
-`
+```
 
 ##Server
-`
+```
 PORT=3000
 HOST=0.0.0.0
-`
+```
 after this steps you're ready to run each server with `npm run start:dev` or `npm run start:prod` for each environment
 
 #Testing
