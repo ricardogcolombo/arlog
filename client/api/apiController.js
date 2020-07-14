@@ -1,4 +1,4 @@
-const {existsSync, readdirSync, readFileSync, statSync} = require("fs");
+const { promises,constants } = require("fs");
 
 // TODO send this in a parameter
 const config = require("../config");
@@ -9,9 +9,12 @@ const TYPES = {
 };
 const BASE_PATH = config.PATH;
 
-const getFolderInfo = (urlPath) => {
-    if (existsSync(urlPath) && statSync(urlPath).isDirectory()) {
-        return readdirSync(urlPath, {withFileTypes: true}).map((item) => {
+const getFolderInfo = async (urlPath) => {
+    const filestats =await promises.stat(urlPath);
+    if (filestats.isDirectory()) {
+        let data = await promises.readdir(urlPath, {withFileTypes: true})
+
+        return data.map((item) => {
             if (item.isDirectory()) {
                 return {name: item.name, type: TYPES.FOLDER};
             } else {
@@ -28,13 +31,13 @@ const healthCheck = (req, res) => {
 };
 
 //FOLDER METHODS
-const getFolder = (req, res, next) => {
+const getFolder = async (req, res, next) => {
     let {
         query: {url},
     } = req;
     try {
         let v = getCompletePath(url);
-        let data = getFolderInfo(v);
+        let data = await getFolderInfo(v);
         res.send(data);
     } catch (e) {
         next(e);
@@ -49,22 +52,25 @@ const getCompletePath = (path, filename) => {
 };
 
 // FILE METHODS
-const getFile = (req, res, next) => {
+const getFile = async(req, res, next) => {
     let {
         query: {url, filename, limit, search},
     } = req;
     try {
         const path = getCompletePath(url, filename);
-        const data = readFileFromPath(path, parseInt(limit), search);
+        const data =await readFileFromPath(path, parseInt(limit), search);
         res.send(data);
     } catch (e) {
         next(e);
     }
 };
 
-const readFileFromPath = (urlPath, limit = 0, search = "") => {
-    if (existsSync(urlPath) && statSync(urlPath).isFile()) {
-        let data = readFileSync(urlPath, "utf8")
+const readFileFromPath = async (urlPath, limit = 0, search = "") => {
+    const exists = await promises.access(urlPath,constants.F_OK);
+    const isFile=await promises.stat(urlPath).isFile();
+    if (exists && isFile) {
+        let data = await promises.readFile(urlPath, "utf8");
+        data = data
             .split("\n")
             .filter((item) => item.length > 0)
             .reverse();
